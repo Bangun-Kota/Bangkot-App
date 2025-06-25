@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, memo, useMemo } from "react";
 import { Sparkles, Users, Building, Zap, Heart, Star } from "lucide-react";
 import { motion, useInView } from "framer-motion";
@@ -109,7 +107,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -122,7 +120,7 @@ const floatingVariants = {
     transition: {
       duration: 10,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -135,7 +133,7 @@ const orbVariants = {
     transition: {
       duration: 15 + custom * 3,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   }),
 };
@@ -147,7 +145,7 @@ const underlineVariants = {
     transition: {
       duration: 1.2,
       delay: 0.8,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -158,7 +156,7 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -173,18 +171,19 @@ const pathVariants = {
     opacity: 1,
     transition: {
       duration: 2,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
 
 // Memoized components for performance
-const FloatingElement = memo(({ item, index }: { item: FloatingElement; index: number }) => (
+const FloatingElement = memo(({ item }: { item: FloatingElement; }) => (
   <motion.div
     className="absolute text-white/20 hover:text-white/40 transition-colors duration-300"
     style={{ 
       left: item.x,
       top: item.y,
+      willChange: "transform, opacity",
     }}
     variants={floatingVariants}
     animate="animate"
@@ -196,7 +195,6 @@ const FloatingElement = memo(({ item, index }: { item: FloatingElement; index: n
       color: "rgba(255, 255, 255, 0.6)",
       transition: { duration: 0.2 }
     }}
-    style={{ willChange: "transform, opacity" }}
   >
     {item.icon}
   </motion.div>
@@ -243,9 +241,8 @@ const StatCard = memo(({ stat, index }: { stat: StatItem; index: number }) => (
   </motion.div>
 ));
 
-const FeatureCard = memo(({ feature, index, isHovered, onHover, onLeave }: { 
+const FeatureCard = memo(({ feature, isHovered, onHover, onLeave }: { 
   feature: Feature; 
-  index: number; 
   isHovered: boolean;
   onHover: () => void;
   onLeave: () => void;
@@ -330,7 +327,7 @@ const AboutSection = memo(() => {
   // Memoize expensive calculations
   const memoizedFloatingElements = useMemo(() => 
     floatingElements.map((item, idx) => (
-      <FloatingElement key={idx} item={item} index={idx} />
+      <FloatingElement key={idx} item={item} />
     )), []
   );
 
@@ -345,7 +342,6 @@ const AboutSection = memo(() => {
       <FeatureCard 
         key={feature.title} 
         feature={feature} 
-        index={idx}
         isHovered={hoveredFeature === idx}
         onHover={() => setHoveredFeature(idx)}
         onLeave={() => setHoveredFeature(null)}

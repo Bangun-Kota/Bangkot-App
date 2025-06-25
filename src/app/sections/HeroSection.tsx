@@ -87,7 +87,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -101,7 +101,7 @@ const floatingVariants = {
       duration: 6,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -114,7 +114,7 @@ const orbVariants = {
       duration: 4,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -126,7 +126,7 @@ const underlineVariants = {
     transition: {
       duration: 1,
       delay: 1,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -137,13 +137,13 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
 
 // Memoized components for performance
-const FloatingIcon = memo(({ item, index }: { item: FloatingIcon; index: number }) => (
+const FloatingIcon = memo(({ item }: { item: FloatingIcon; }) => (
   <motion.div
     className="absolute text-brand-gray-400 hover:text-primary-500 transition-colors duration-300"
     style={{ 
@@ -216,7 +216,7 @@ const HeroSection = memo(() => {
   // Memoize expensive calculations
   const memoizedFloatingIcons = useMemo(() => 
     floatingIcons.map((item, idx) => (
-      <FloatingIcon key={idx} item={item} index={idx} />
+      <FloatingIcon key={idx} item={item} />
     )), []
   );
 
@@ -227,7 +227,7 @@ const HeroSection = memo(() => {
   );
 
   const memoizedStats = useMemo(() =>
-    stats.map((stat, idx) => (
+    stats.map((stat) => (
       <StatCard key={stat.label} stat={stat} />
     )), []
   );

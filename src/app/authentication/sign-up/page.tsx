@@ -14,7 +14,8 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
-  XCircle
+  XCircle,
+  LucideIcon
 } from "lucide-react";
 import { useState } from "react";
 
@@ -80,7 +81,7 @@ function ModernInput({
   autoComplete,
   showPasswordToggle = false 
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   type?: string;
   name: string;

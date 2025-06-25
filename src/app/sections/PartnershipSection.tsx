@@ -115,7 +115,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -129,7 +129,7 @@ const floatingVariants = {
       duration: 6,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -142,7 +142,7 @@ const orbVariants = {
       duration: 4,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -154,7 +154,7 @@ const underlineVariants = {
     transition: {
       duration: 1,
       delay: 0.8,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -165,13 +165,27 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
 
+interface FloatingIconItem {
+  x: number | string;
+  y: number | string;
+  delay: number;
+  icon: React.ReactNode;
+}
+
+interface StatItem {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+}
+
+
 // Memoized components
-const FloatingIcon = memo(({ item, index }: { item: any; index: number }) => (
+const FloatingIcon = memo(({ item }: { item: FloatingIconItem; }) => (
   <motion.div
     className="absolute text-brand-gray-400 hover:text-primary-500 transition-colors duration-300"
     style={{ 
@@ -192,7 +206,7 @@ const FloatingIcon = memo(({ item, index }: { item: any; index: number }) => (
   </motion.div>
 ));
 
-const StatCard = memo(({ stat, index }: { stat: any; index: number }) => (
+const StatCard = memo(({ stat, index }: { stat: StatItem; index: number }) => (
   <motion.div
     variants={itemVariants}
     whileHover={{ 
@@ -380,7 +394,7 @@ export default function PartnershipSection() {
 
   const memoizedFloatingIcons = useMemo(() => 
     floatingIcons.map((item, idx) => (
-      <FloatingIcon key={idx} item={item} index={idx} />
+      <FloatingIcon key={idx} item={item} />
     )), []
   );
 

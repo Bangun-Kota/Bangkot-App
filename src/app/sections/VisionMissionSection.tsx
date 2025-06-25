@@ -1,4 +1,4 @@
-import { CheckCircle, Eye, Target, Sparkles, Heart, Users, Zap, MapPin } from "lucide-react";
+import { Eye, Target, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { memo, useMemo } from "react";
 
@@ -94,7 +94,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -111,7 +111,7 @@ const cardVariants = {
     rotateY: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -128,7 +128,7 @@ const missionCardVariants = {
     rotateY: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: "easeInOut" as const,
       delay: 0.2,
     },
   },
@@ -143,7 +143,7 @@ const floatingVariants = {
       duration: 8,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -156,7 +156,7 @@ const orbVariants = {
     transition: {
       duration: 12,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -167,13 +167,13 @@ const progressVariants = {
     scaleX: 1,
     transition: {
       duration: 1.5,
-      ease: "easeOut",
+      ease: "easeInOut" as const,
     },
   },
 };
 
 // Memoized components
-const FloatingShape = memo(({ shape, index }: { shape: FloatingShape; index: number }) => (
+const FloatingShape = memo(({ shape }: { shape: FloatingShape; }) => (
   <motion.div
     className={`absolute ${shape.size} bg-gradient-to-r from-white/20 to-brand-turquoise/40 rounded-full`}
     style={{ 
@@ -276,7 +276,7 @@ const VisionCard = memo(() => (
           className="flex flex-wrap gap-2 pt-4"
           variants={containerVariants}
         >
-          {visionPillars.map((pillar, index) => (
+          {visionPillars.map((pillar) => (
             <motion.span
               key={pillar}
               className="px-3 py-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-white/80 cursor-pointer"
@@ -427,7 +427,7 @@ const MissionCard = memo(() => (
   </motion.div>
 ));
 
-const StatCard = memo(({ stat, index }: { stat: StatItem; index: number }) => (
+const StatCard = memo(({ stat }: { stat: StatItem; }) => (
   <motion.div
     className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 group cursor-pointer"
     variants={itemVariants}
@@ -462,13 +462,13 @@ const VisionMissionSection = memo(() => {
   // Memoized floating shapes
   const memoizedFloatingShapes = useMemo(() => 
     floatingShapes.map((shape, idx) => (
-      <FloatingShape key={idx} shape={shape} index={idx} />
+      <FloatingShape key={idx} shape={shape} />
     )), []
   );
 
   const memoizedStats = useMemo(() =>
-    stats.map((stat, idx) => (
-      <StatCard key={stat.label} stat={stat} index={idx} />
+    stats.map((stat) => (
+      <StatCard key={stat.label} stat={stat} />
     )), []
   );
 

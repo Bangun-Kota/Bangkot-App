@@ -44,7 +44,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -56,7 +56,7 @@ const cardHoverVariants = {
     rotate: [0, 1, -1, 0],
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
   tap: {
@@ -73,7 +73,7 @@ const iconVariants = {
     scale: [1, 1.1, 1],
     transition: {
       duration: 0.6,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -95,7 +95,7 @@ const progressVariants = {
     transition: {
       duration: 1,
       delay: i * 0.1 + 0.5,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   }),
 };
@@ -108,7 +108,7 @@ const floatingVariants = {
     transition: {
       duration: 6,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -120,7 +120,7 @@ const orbVariants = {
     transition: {
       duration: 5,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -131,7 +131,7 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 0.8,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };

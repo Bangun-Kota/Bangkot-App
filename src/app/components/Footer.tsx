@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, memo } from "react";
-import { motion } from "framer-motion";
+import { motion} from "framer-motion";
 import { 
-  ArrowRight, 
   Mail, 
   MapPin, 
   Phone, 
@@ -41,7 +40,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -56,7 +55,7 @@ const orbVariants = {
       duration: 8,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -67,7 +66,7 @@ const logoVariants = {
     transition: {
       duration: 20,
       repeat: Infinity,
-      ease: "linear",
+      ease: "linear" as const,
     },
   },
 };
@@ -235,7 +234,7 @@ const Footer = memo(() => {
 
               {/* Contact Info */}
               <div className="space-y-3">
-                {contactInfo.map((contact, index) => (
+                {contactInfo.map((contact) => (
                   <motion.div
                     key={contact.text}
                     className="flex items-center space-x-3 group"

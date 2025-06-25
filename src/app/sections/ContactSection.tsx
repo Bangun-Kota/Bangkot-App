@@ -75,7 +75,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -89,7 +89,7 @@ const floatingVariants = {
       duration: 5,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -102,7 +102,7 @@ const orbVariants = {
       duration: 6,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -113,7 +113,7 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 0.8,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -182,27 +182,15 @@ const FloatingElement = memo(({ element }: { element: FloatingElement }) => (
 
 const ContactSection = memo(() => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log("Form submitted:", form);
-    setForm({ name: "", email: "", message: "" });
-    setIsSubmitting(false);
-  };
-
   // Memoized elements
   const memoizedContactInfo = useMemo(() => 
-    contactInfo.map((info, idx) => (
+    contactInfo.map((info) => (
       <ContactInfoCard key={info.title} info={info} />
     )), []
   );

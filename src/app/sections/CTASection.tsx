@@ -17,7 +17,7 @@ const particleVariants = {
     transition: {
       duration: 8,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: "easeInOut" as const,
     }
   }
 };
@@ -39,7 +39,7 @@ const itemVariants = {
     opacity: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       damping: 20,
       stiffness: 100
     }
@@ -171,7 +171,7 @@ export default function CTASection() {
               { icon: <Zap className="w-4 h-4" />, text: "Program Menarik" },
               { icon: <Heart className="w-4 h-4" />, text: "Dampak Nyata" },
               { icon: <Sparkles className="w-4 h-4" />, text: "Networking" }
-            ].map((feature, idx) => (
+            ].map((feature) => (
               <motion.div
                 key={feature.text}
                 whileHover={{ scale: 1.05, y: -2 }}

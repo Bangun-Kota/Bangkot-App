@@ -42,7 +42,7 @@ const itemVariants = {
     rotateX: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -59,7 +59,7 @@ const titleVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -71,7 +71,7 @@ const cardHoverVariants = {
     rotateY: 2,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -81,7 +81,7 @@ const imageVariants = {
     scale: 1.1,
     transition: {
       duration: 0.4,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -92,7 +92,7 @@ const iconVariants = {
     scale: 1.2,
     transition: {
       duration: 0.5,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -103,7 +103,7 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 1.5,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -116,7 +116,7 @@ const floatingVariants = {
       duration: 4,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };

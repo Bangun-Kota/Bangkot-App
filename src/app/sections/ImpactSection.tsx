@@ -17,7 +17,7 @@ const particleVariants = {
     transition: {
       duration: 12,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: "easeInOut" as const
     }
   }
 };
@@ -122,7 +122,7 @@ const cardVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       damping: 25,
       stiffness: 120,
       mass: 1
@@ -136,7 +136,7 @@ const itemVariants = {
     opacity: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       damping: 20,
       stiffness: 100
     }

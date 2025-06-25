@@ -88,7 +88,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -104,7 +104,7 @@ const cardVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       damping: 20,
       stiffness: 100,
       duration: 0.8
@@ -121,7 +121,7 @@ const floatingVariants = {
       duration: 6,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -134,7 +134,7 @@ const orbVariants = {
       duration: 4,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -146,7 +146,7 @@ const underlineVariants = {
     transition: {
       duration: 1,
       delay: 0.8,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -157,13 +157,13 @@ const shimmerVariants = {
     x: "100%",
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
 
 // Memoized components
-const FloatingElement = memo(({ element, index }: { element: FloatingElement; index: number }) => (
+const FloatingElement = memo(({ element }: { element: FloatingElement; }) => (
   <motion.div
     className={`absolute ${element.color} hover:text-primary-500 transition-colors duration-300`}
     style={{ 
@@ -305,7 +305,7 @@ const ProgramsSection = memo(() => {
   // Memoize expensive calculations
   const memoizedFloatingElements = useMemo(() => 
     floatingElements.map((element, idx) => (
-      <FloatingElement key={idx} element={element} index={idx} />
+      <FloatingElement key={idx} element={element} />
     )), []
   );
 

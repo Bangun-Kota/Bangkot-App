@@ -110,7 +110,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -124,7 +124,7 @@ const floatingVariants = {
       duration: 6,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -137,24 +137,13 @@ const orbVariants = {
       duration: 8,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
 
-const cardVariants = {
-  hover: {
-    scale: 1.05,
-    y: -8,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut"
-    }
-  }
-};
-
 // Memoized components
-const ServiceCard = memo(({ service, index }: { service: Service; index: number }) => (
+const ServiceCard = memo(({ service }: { service: Service; }) => (
   <motion.div
     variants={itemVariants}
     whileHover="hover"
@@ -250,8 +239,8 @@ const FloatingElement = memo(({ element }: { element: FloatingElement }) => (
 const OurServicesSection = memo(() => {
   // Memoized elements
   const memoizedServices = useMemo(() => 
-    services.map((service, idx) => (
-      <ServiceCard key={service.title} service={service} index={idx} />
+    services.map((service) => (
+      <ServiceCard key={service.title} service={service} />
     )), []
   );
 

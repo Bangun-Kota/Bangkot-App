@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { memo, useMemo } from "react";
-import { Play, Image as ImageIcon, FileText, ExternalLink, Sparkles, Camera, Video, Download } from "lucide-react";
+import { Play, FileText, ExternalLink, Sparkles, Camera, Video } from "lucide-react";
 
 type MediaItem = {
   title: string;
@@ -91,7 +91,7 @@ const itemVariants = {
     rotateX: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -103,7 +103,7 @@ const titleVariants = {
     y: 0,
     transition: {
       duration: 0.8,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -118,7 +118,7 @@ const orbVariants = {
       duration: 8,
       repeat: Infinity,
       repeatType: "reverse" as const,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };

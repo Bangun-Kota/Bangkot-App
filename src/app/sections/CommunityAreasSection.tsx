@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export default function CommunityAreasSection() {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const areas = [
     { 
