@@ -194,7 +194,7 @@ export default function CTASection() {
               whileTap={{ scale: 0.95 }}
             >
               <Link
-                href="/join"
+                href="/authentication/sign-in"
                 className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 via-pink-400 to-cyan-400 text-black font-bold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 overflow-hidden"
               >
                 <span className="relative z-10">Gabung Komunitas</span>
