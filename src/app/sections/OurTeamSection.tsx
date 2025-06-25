@@ -51,7 +51,7 @@ const defaultTeamMembers: TeamMember[] = [
       linkedin: "#"
     }
   },
-  {
+/*  {
     id: 2,
     name: "Sari Indrawati",
     position: "Program Director",
@@ -98,7 +98,7 @@ const defaultTeamMembers: TeamMember[] = [
       twitter: "#",
       linkedin: "#"
     }
-  }
+  }*/
 ];
 
 // Animation variants matching hero section
