@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 
@@ -122,12 +123,15 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center group">
-              <div className="relative">
-                <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-yellow group-hover:scale-105 transition-transform duration-200">
-                  <div className="w-5 h-5 bg-white rounded-md transform rotate-12 opacity-90"></div>
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-white/60 rounded-full"></div>
-                </div>
-              </div>
+              <Image
+              src="/images/logo.jpeg"
+              alt="Brand Name"
+              width={120}
+              height={40}
+              priority // Untuk logo yang penting
+              className="h-8 md:h-10 w-auto dark:invert"
+            />
+
               <span className="ml-3 text-xl font-bold bg-gradient-to-r from-brand-yellow to-brand-turquoise bg-clip-text text-transparent">
                 Bangunkota
               </span>
