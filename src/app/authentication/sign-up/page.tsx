@@ -15,15 +15,106 @@ import {
   ArrowRight,
   CheckCircle2,
   XCircle,
-  LucideIcon
+  LucideIcon,
+  Users,
+  Zap,
+  Heart,
+  MapPin,
+  Calendar
 } from "lucide-react";
-import { useState } from "react";
+import { useState, memo, useMemo } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 // Interface untuk state form
 interface FormState {
   type: "success" | "error" | "idle";
   message: string;
 }
+
+interface FloatingIcon {
+  icon: React.ReactNode;
+  delay: number;
+  x: string;
+  y: string;
+}
+
+// Static data untuk floating icons (disesuaikan dengan hero section)
+const floatingIcons: FloatingIcon[] = [
+  { icon: <Sparkles className="w-4 h-4" />, delay: 0, x: "15%", y: "15%" },
+  { icon: <Users className="w-5 h-5" />, delay: 1, x: "85%", y: "20%" },
+  { icon: <Zap className="w-4 h-4" />, delay: 2, x: "10%", y: "80%" },
+  { icon: <Heart className="w-5 h-5" />, delay: 1.5, x: "90%", y: "70%" },
+  { icon: <MapPin className="w-4 h-4" />, delay: 0.5, x: "20%", y: "60%" },
+  { icon: <Calendar className="w-4 h-4" />, delay: 2.5, x: "80%", y: "85%" },
+];
+
+// Animation variants (selaras dengan hero section)
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 20,
+    scale: 0.95 
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  },
+};
+
+const floatingVariants = {
+  animate: {
+    y: [-8, 8, -8],
+    x: [-3, 3, -3],
+    rotate: [-1, 1, -1],
+    transition: {
+      duration: 6,
+      repeat: Infinity,
+      repeatType: "reverse" as const,
+      ease: "easeInOut" as const,
+    },
+  },
+};
+
+const orbVariants = {
+  animate: {
+    scale: [1, 1.1, 1],
+    opacity: [0.3, 0.5, 0.3],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+      repeatType: "reverse" as const,
+      ease: "easeInOut" as const,
+    },
+  },
+};
+
+const shimmerVariants = {
+  initial: { x: "-100%" },
+  animate: {
+    x: "100%",
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const,
+    },
+  },
+};
 
 /**
  * Server Action untuk Pendaftaran
@@ -68,8 +159,32 @@ async function signUpAction(
   };
 }
 
+// Memoized floating icon component
+const FloatingIcon = memo(({ item }: { item: FloatingIcon; }) => (
+  <motion.div
+    className="absolute text-brand-gray-400 hover:text-primary-500 transition-colors duration-300"
+    style={{ 
+      left: item.x,
+      top: item.y,
+    }}
+    variants={floatingVariants}
+    animate="animate"
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    transition={{ delay: item.delay }}
+    whileHover={{ 
+      scale: 1.2,
+      transition: { duration: 0.2 }
+    }}
+  >
+    {item.icon}
+  </motion.div>
+));
+
+FloatingIcon.displayName = 'FloatingIcon';
+
 /**
- * Komponen Input dengan animasi dan styling modern
+ * Komponen Input dengan animasi dan styling selaras dengan hero section
  */
 function ModernInput({ 
   icon: Icon, 
@@ -97,17 +212,25 @@ function ModernInput({
   const inputType = showPasswordToggle ? (showPassword ? "text" : "password") : type;
 
   return (
-    <div className="group">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+    <motion.div 
+      className="group"
+      variants={itemVariants}
+    >
+      <label className="block text-sm font-medium text-foreground-secondary mb-2 transition-colors">
         {label}
       </label>
       <div className={`relative transition-all duration-300 ${isFocused ? 'transform scale-[1.02]' : ''}`}>
-        <Icon 
-          className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-            isFocused ? 'text-indigo-500 scale-110' : 'text-gray-400'
-          }`}
-          size={20} 
-        />
+        <motion.div
+          animate={{ rotate: isFocused ? 360 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Icon 
+            className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+              isFocused ? 'text-primary-500 scale-110' : 'text-brand-gray-400'
+            }`}
+            size={20} 
+          />
+        </motion.div>
         <input
           id={name}
           name={name}
@@ -123,55 +246,70 @@ function ModernInput({
           onChange={(e) => setHasValue(e.target.value.length > 0)}
           className={`
             block w-full rounded-xl border-0 py-3.5 pl-11 pr-12
-            bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm
-            text-gray-900 dark:text-white
-            shadow-lg ring-1 ring-inset transition-all duration-300
-            placeholder:text-gray-400 sm:text-sm sm:leading-6
+            bg-background/80 backdrop-blur-sm
+            text-foreground
+            shadow-soft ring-1 ring-inset transition-all duration-300
+            placeholder:text-brand-gray-400 sm:text-sm sm:leading-6
             ${isFocused 
-              ? 'ring-2 ring-indigo-500 shadow-indigo-200/50 dark:shadow-indigo-500/20' 
-              : 'ring-gray-200 dark:ring-gray-700 hover:ring-gray-300 dark:hover:ring-gray-600'
+              ? 'ring-2 ring-primary-500 shadow-yellow' 
+              : 'ring-primary-200 hover:ring-primary-300'
             }
-            ${hasValue ? 'ring-emerald-200 dark:ring-emerald-800' : ''}
+            ${hasValue ? 'ring-secondary-200' : ''}
           `}
         />
         {showPasswordToggle && (
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-gray-400 hover:text-primary-500 transition-colors"
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 /**
- * Komponen Tombol Submit dengan animasi
+ * Komponen Tombol Submit dengan animasi selaras dengan hero section
  */
 function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <motion.button
       type="submit"
       disabled={pending}
       className={`
-        w-full group relative overflow-hidden rounded-xl px-6 py-4
-        bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700
-        text-white font-semibold shadow-xl
+        w-full group relative overflow-hidden rounded-2xl px-8 py-4
+        bg-gradient-primary text-white font-bold shadow-yellow hover:shadow-turquoise
         transition-all duration-300 transform
         ${pending 
           ? 'scale-95 opacity-80 cursor-not-allowed' 
-          : 'hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/25 active:scale-95'
+          : 'hover:scale-105 active:scale-95'
         }
         disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-400
       `}
       aria-disabled={pending}
+      whileHover={{ scale: pending ? 1 : 1.05, y: pending ? 0 : -2 }}
+      whileTap={{ scale: 0.95 }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+      {/* Animated Background */}
+      <motion.div 
+        className="absolute inset-0 bg-gradient-secondary"
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      />
+      
+      {/* Shimmer Effect */}
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+        variants={shimmerVariants}
+        initial="initial"
+        whileHover={pending ? "initial" : "animate"}
+      />
       
       <div className="relative flex items-center justify-center gap-3">
         {pending ? (
@@ -182,38 +320,52 @@ function SubmitButton() {
         ) : (
           <>
             <UserPlus size={22} />
-            <span>Buat Akun</span>
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            <span>Gabung Komunitas</span>
+            <motion.div
+              animate={{ x: [0, 3, 0] }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity,
+                repeatDelay: 2
+              }}
+            >
+              <ArrowRight size={18} />
+            </motion.div>
           </>
         )}
       </div>
-    </button>
+    </motion.button>
   );
 }
 
 /**
- * Komponen Alert modern
+ * Komponen Alert modern dengan styling selaras
  */
 function ModernAlert({ type, message }: { type: "success" | "error"; message: string }) {
   const isSuccess = type === "success";
   
   return (
-    <div className={`
-      relative p-4 rounded-2xl backdrop-blur-sm border transition-all duration-500 animate-in slide-in-from-top-2
-      ${isSuccess 
-        ? 'bg-emerald-50/80 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' 
-        : 'bg-red-50/80 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'
-      }
-    `}>
+    <motion.div 
+      className={`
+        relative p-4 rounded-2xl backdrop-blur-sm border transition-all duration-500
+        ${isSuccess 
+          ? 'bg-secondary-50/80 border-secondary-200 text-secondary-700' 
+          : 'bg-accent-orange-50/80 border-accent-orange-200 text-accent-orange-700'
+        }
+      `}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex items-start gap-3">
         {isSuccess ? (
-          <CheckCircle2 className="text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" size={20} />
+          <CheckCircle2 className="text-secondary-500 flex-shrink-0 mt-0.5" size={20} />
         ) : (
-          <XCircle className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" size={20} />
+          <XCircle className="text-accent-orange-500 flex-shrink-0 mt-0.5" size={20} />
         )}
         <p className="text-sm font-medium">{message}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -224,35 +376,105 @@ export default function SignUpPage() {
   const initialState: FormState = { type: "idle", message: "" };
   const [state, formAction] = useFormState(signUpAction, initialState);
 
+  // Memoize floating icons
+  const memoizedFloatingIcons = useMemo(() => 
+    floatingIcons.map((item, idx) => (
+      <FloatingIcon key={idx} item={item} />
+    )), []
+  );
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950 p-4 flex items-center justify-center">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
+    <main className="relative min-h-screen bg-gradient-hero text-foreground overflow-hidden flex items-center justify-center p-4">
+      {/* Animated Background Elements (selaras dengan hero section) */}
+      <div className="absolute inset-0">
+        {/* Gradient Orbs */}
+        <motion.div 
+          className="absolute top-0 left-0 w-96 h-96 bg-primary-300/20 rounded-full blur-3xl"
+          variants={orbVariants}
+          animate="animate"
+          style={{ willChange: "transform, opacity" }}
+        />
+        <motion.div 
+          className="absolute bottom-0 right-0 w-80 h-80 bg-secondary-300/20 rounded-full blur-3xl"
+          variants={orbVariants}
+          animate="animate"
+          transition={{ delay: 1 }}
+          style={{ willChange: "transform, opacity" }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-accent-blue-300/20 rounded-full blur-3xl"
+          variants={orbVariants}
+          animate="animate"
+          transition={{ delay: 2 }}
+          style={{ willChange: "transform, opacity" }}
+        />
       </div>
 
-      <div className="w-full max-w-md space-y-8 relative z-10">
+      {/* Floating Icons */}
+      {memoizedFloatingIcons}
+
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(234,179,8,0.05),transparent_70%)]" />
+
+      <motion.div 
+        className="w-full max-w-md space-y-8 relative z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
-            <Sparkles className="text-white" size={28} />
-          </div>
+        <motion.div 
+          className="text-center space-y-4"
+          variants={itemVariants}
+        >
+          {/* Badge selaras dengan hero section */}
+          <motion.div 
+            className="inline-flex items-center gap-2 bg-background/80 backdrop-blur-sm border border-primary-200 rounded-full px-4 py-2 shadow-soft mb-4"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-4 h-4 text-primary-500" />
+            </motion.div>
+            <span className="text-sm font-medium text-foreground-secondary">
+              Bergabung dengan Bangunkota
+            </span>
+          </motion.div>
+
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-800 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
-              Buat Akun Baru
-            </h1>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 text-lg">
-              Bergabunglah dengan ribuan pengguna lainnya
-            </p>
+            <motion.h1 
+              className="text-4xl md:text-5xl font-bold"
+              variants={itemVariants}
+            >
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                Daftar Sekarang
+              </span>
+            </motion.h1>
+            <motion.p 
+              className="mt-3 text-foreground-secondary text-lg"
+              variants={itemVariants}
+            >
+              Jadilah bagian dari{" "}
+              <span className="text-primary-600 font-semibold">komunitas yang mengubah kota</span>
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Form Card */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-xl"></div>
-          <div className="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-gray-700/20">
-            <form action={formAction} className="space-y-6">
+        <motion.div 
+          className="relative"
+          variants={itemVariants}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 rounded-3xl blur-xl"></div>
+          <div className="relative bg-background/80 backdrop-blur-xl rounded-3xl p-8 shadow-soft border border-white/20">
+            <motion.form 
+              action={formAction} 
+              className="space-y-6"
+              variants={containerVariants}
+            >
               
               <ModernInput
                 icon={UserCircle}
@@ -300,22 +522,52 @@ export default function SignUpPage() {
               )}
               
               <SubmitButton />
-            </form>
+            </motion.form>
           </div>
-        </div>
+        </motion.div>
 
         {/* Footer link */}
-        <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-400">
+        <motion.div 
+          className="text-center"
+          variants={itemVariants}
+        >
+          <p className="text-foreground-secondary">
             Sudah punya akun?{' '}
-            <a 
+            <Link 
               href="/authentication/sign-in" 
-              className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors hover:underline"
+              className="font-semibold text-primary-600 hover:text-primary-500 transition-colors hover:underline"
             >
               Masuk di sini
-            </a>
+            </Link>
           </p>
-        </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Bottom Decorative Wave (selaras dengan hero section) */}
+      <div className="absolute bottom-0 left-0 w-full">
+        <motion.svg
+          viewBox="0 0 1200 120"
+          fill="none"
+          className="w-full h-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.8 }}
+        >
+          <motion.path
+            d="M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z"
+            fill="url(#themeGradient)"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, delay: 1.2 }}
+          />
+          <defs>
+            <linearGradient id="themeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(234,179,8,0.1)" />
+              <stop offset="50%" stopColor="rgba(20,184,166,0.15)" />
+              <stop offset="100%" stopColor="rgba(59,130,246,0.1)" />
+            </linearGradient>
+          </defs>
+        </motion.svg>
       </div>
     </main>
   );
