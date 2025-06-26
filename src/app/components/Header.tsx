@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation';
 
 const navigation = [
   { name: 'Beranda', href: '#' },
@@ -23,6 +24,7 @@ const navigation = [
 ]
 
 export default function Header() {
+  
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [tabletDropdownOpen, setTabletDropdownOpen] = useState(false)
@@ -31,6 +33,8 @@ export default function Header() {
   const tabletDropdownRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const mobileButtonRef = useRef<HTMLButtonElement>(null)
+  
+  
 
   // Desktop dropdown outside click
   useEffect(() => {
@@ -115,6 +119,11 @@ export default function Header() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+  
+  const pathname = usePathname()
+  if (pathname !== '/') {
+    return null
+  }
 
   // --- UI rendering tetap seperti versi lo sebelumnya ---
   return (
