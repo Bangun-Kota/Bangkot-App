@@ -1,6 +1,4 @@
 import './globals.css'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 
 
@@ -24,9 +22,9 @@ export default function RootLayout({
       
       <body className={`${jakarta.variable} font-sans bg-white text-gray-900`}>
         
-        <Header />
+        
         {children}
-        <Footer />
+        
       
       </body>
     </html>
