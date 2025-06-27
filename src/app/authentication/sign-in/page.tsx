@@ -553,7 +553,7 @@ export default function SignInPage() {
                   <span className="ml-2 text-sm text-foreground-secondary">Ingat saya</span>
                 </label>
                 <motion.a 
-                  href="/forgot-password" 
+                  href="/authentication/forgot-password" 
                   className="text-sm text-primary-600 hover:text-primary-500 transition-colors hover:underline font-medium"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

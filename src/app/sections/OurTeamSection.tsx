@@ -383,7 +383,7 @@ const OurTeamSection: React.FC<OurTeamSectionProps> = ({
   );
 
   return (
-    <section className="relative py-20 bg-gradient-hero text-foreground overflow-hidden">
+    <section id="ourteam" className="relative py-20 bg-gradient-hero text-foreground overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         {/* Gradient Orbs */}
