@@ -435,39 +435,26 @@ const ProgramsSection = memo(() => {
           className="text-center"
         >
           <motion.div
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+            className="inline-flex flex-col sm:flex-row gap-4"
+            variants={itemVariants}
           >
-            <button className="group relative inline-flex items-center gap-3 bg-gradient-primary text-white font-bold px-8 py-4 rounded-2xl shadow-yellow hover:shadow-turquoise transition-all duration-300 overflow-hidden">
-              <span className="relative z-10">Lihat Semua Program</span>
-              <motion.div 
-                className="relative z-10"
-                animate={{ x: [0, 3, 0] }}
+            <motion.button
+              className="group inline-flex items-center gap-2 bg-background/80 backdrop-blur-sm border-2 border-accent-green-300 text-accent-green-700 font-semibold px-6 py-3 rounded-xl hover:bg-accent-green-50 hover:border-accent-green-400 transition-all duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Lihat Semua Program
+              <motion.div
+                animate={{ rotate: [0, 45, 0] }}
                 transition={{ 
-                  duration: 1.5, 
+                  duration: 0.5,
                   repeat: Infinity,
                   repeatDelay: 2
                 }}
               >
-                <ArrowRight className="w-5 h-5" />
+                <Sparkles className="w-4 h-4" />
               </motion.div>
-              
-              {/* Animated Background */}
-              <motion.div 
-                className="absolute inset-0 bg-gradient-secondary"
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              />
-              
-              {/* Shimmer Effect */}
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-                variants={shimmerVariants}
-                initial="initial"
-                whileHover="animate"
-              />
-            </button>
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>

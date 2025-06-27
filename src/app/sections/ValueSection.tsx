@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -464,44 +465,44 @@ export default function ValueSection(): JSX.Element {
           </motion.p>
           
           {/* CTA Button */}
-          <motion.button 
-            className="group relative inline-flex items-center gap-3 bg-gradient-primary text-white font-bold px-8 py-4 rounded-2xl shadow-yellow hover:shadow-turquoise transition-all duration-300 overflow-hidden"
-            whileHover={{ 
-              scale: 1.05, 
-              y: -3,
-            }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            <span className="relative z-10">Mari Berkolaborasi</span>
-            <motion.div 
-              className="relative z-10"
-              animate={{ x: [0, 3, 0] }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                repeatDelay: 2
-              }}
+          <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <HeartHandshake className="w-5 h-5" />
+              <Link
+                href="/authentication/sign-in"
+                className="group relative inline-flex items-center gap-3 bg-gradient-primary text-white font-bold px-8 py-4 rounded-2xl shadow-yellow hover:shadow-turquoise transition-all duration-300 overflow-hidden"
+              >
+                <span className="relative z-10">Mulai Berkolaborasi</span>
+                <motion.div 
+                  className="relative z-10"
+                  animate={{ x: [0, 3, 0] }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity,
+                    repeatDelay: 2
+                  }}
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </motion.div>
+                
+                {/* Animated Background */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-secondary"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+                
+                {/* Shimmer Effect */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                  variants={shimmerVariants}
+                  initial="initial"
+                  whileHover="animate"
+                />
+              </Link>
             </motion.div>
-            
-            {/* Button Background Animation */}
-            <motion.div 
-              className="absolute inset-0 bg-gradient-secondary"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
-            
-            {/* Shimmer Effect */}
-            <motion.div 
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-              variants={shimmerVariants}
-              initial="initial"
-              whileHover="animate"
-            />
-          </motion.button>
         </motion.div>
       </div>
     </section>
