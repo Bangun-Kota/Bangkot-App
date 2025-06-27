@@ -1,3 +1,5 @@
+'use client'
+
 import HeroSection from '@/sections/HeroSection'
 import AboutSection from '@/sections/AboutSection'
 import ValueSection from '@/sections/ValueSection'

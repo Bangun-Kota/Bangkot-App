@@ -17,6 +17,8 @@ import {
 import {  memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { logger } from '@/lib/logger'
+//import { supabase } from '@/lib/supabase/client';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // Types
 interface FloatingIcon {
@@ -310,11 +312,26 @@ const SocialButton = memo(({ provider, onClick }: SocialButtonProps ) => (
 ));
 
 const LoginPage = memo(() => {
+  const supabase = createClientComponentClient();
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/authentication/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) console.error("Login Error:", error);
+  };
   
   const handleProviderClick = (providerName: string) => {
     logger.party(`Login with ${providerName}`)
     
-    //if (providerName === "Google") signInWithGoogle()
+    if (providerName === "Google") signInWithGoogle()
   }
 
   // Memoize expensive calculations

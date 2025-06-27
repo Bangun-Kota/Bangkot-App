@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, memo, ReactNode } from 'react';
 import { 
   Home, 
@@ -23,6 +25,8 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { LogOut } from 'lucide-react';
 
 // Animation variants
 const containerVariants = {
@@ -179,10 +183,19 @@ interface MenuItem {
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  user: User;
+  profile?: Profile | null;
 }
 
 // Components
-const Sidebar = memo(({ isOpen, onClose }: SidebarProps) => {
+const Sidebar = memo(({ isOpen, onClose, user, profile }: SidebarProps) => {
+  const displayName = profile?.username || 
+                     user.user_metadata?.full_name || 
+                     user.email?.split('@')[0] || 
+                     'User';
+  
+  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
+  const avatarFallback = displayName[0].toUpperCase();
   const [activeMenu, setActiveMenu] = useState('home');
   
   const menuItems: MenuItem[] = [
@@ -260,12 +273,20 @@ const Sidebar = memo(({ isOpen, onClose }: SidebarProps) => {
           variants={itemVariants}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 bg-gradient-turquoise rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
-              A
-            </div>
+            {avatarUrl ? (
+          <img 
+          src={avatarUrl} 
+          alt={displayName}
+          className="w-10 sm:w-12 h-10 sm:h-12 rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-10 sm:w-12 h-10 sm:h-12 bg-gradient-turquoise rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
+          {avatarFallback}
+        </div>
+      )}
             <div className="min-w-0 flex-1">
-              <div className="font-semibold text-foreground text-sm sm:text-base truncate">Alexa Harrison</div>
-              <div className="text-xs sm:text-sm text-foreground-secondary">View profile</div>
+              <div className="font-semibold text-foreground text-sm sm:text-base truncate">{displayName}</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">{profile?.bio || 'View profile'}</div>
             </div>
           </div>
         </motion.div>
@@ -303,6 +324,31 @@ const Sidebar = memo(({ isOpen, onClose }: SidebarProps) => {
             </motion.button>
           ))}
         </nav>
+        
+        {/* Sample logout*/}
+        <div className="p-4 border-t">
+          <button 
+            onClick={async () => {
+              try {
+                const supabase = createClientComponentClient();
+                const { error } = await supabase.auth.signOut();
+                
+                if (!error) {
+                  // Redirect ke home setelah logout berhasil
+                  window.location.href = '/'; 
+                } else {
+                  console.error('Gagal logout:', error.message);
+                }
+              } catch (err) {
+                console.error('Error saat logout:', err);
+              }
+            }}
+            className="text-red-600 text-sm flex items-center gap-2 hover:bg-red-50 p-2 rounded"
+          >
+            <LogOut size={16} />
+            Keluar
+          </button>
+        </div>
 
         {/* Open to Jobs Card */}
         <motion.div 
@@ -326,12 +372,15 @@ const Sidebar = memo(({ isOpen, onClose }: SidebarProps) => {
 
 interface TopBarProps {
   onMenuClick: () => void;
+  user: User;
 }
 
-const TopBar = memo(({ onMenuClick }: TopBarProps) => {
+const TopBar = memo(({ onMenuClick, user }: TopBarProps) => {
   const [showSearch, setShowSearch] = useState(false);
+  const avatarFallback = user.email?.[0].toUpperCase() || 'U';
 
   return (
+    <>
     <motion.div 
       className="bg-background border-b border-gray-200 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-30"
       initial={{ y: -20, opacity: 0 }}
@@ -384,7 +433,7 @@ const TopBar = memo(({ onMenuClick }: TopBarProps) => {
         
         {/* Profile */}
         <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-turquoise rounded-full flex items-center justify-center text-white font-bold text-sm">
-          A
+          {avatarFallback}
         </div>
       </div>
 
@@ -410,10 +459,14 @@ const TopBar = memo(({ onMenuClick }: TopBarProps) => {
         )}
       </AnimatePresence>
     </motion.div>
+    </>
   );
 });
 
-const WelcomeCard = memo(() => (
+interface WelcomeCardProps {
+  username?: string;
+}
+const WelcomeCard = memo(({username}: WelcomeCardProps) => (
   <motion.div 
     className="bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden"
     variants={itemVariants}
@@ -426,7 +479,7 @@ const WelcomeCard = memo(() => (
     <div className="relative z-10">
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
         <Sparkles className="w-5 sm:w-6 h-5 sm:h-6" />
-        <span className="text-base sm:text-lg font-semibold">Welcome! 👋</span>
+        <span className="text-base sm:text-lg font-semibold">Welcome! {username || 'there'}👋</span>
       </div>
       
       <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">You have no upcoming sessions</h2>
@@ -610,21 +663,58 @@ const ActionCards = memo(() => {
   );
 });
 
-const MainDashboard = memo(() => {
+interface User {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+  };
+}
+
+interface Profile {
+  username?: string;
+  bio?: string;
+  avatar_url?: string;
+  // ... other profile fields
+}
+
+interface MainDashboardProps {
+  user: User;
+  profile?: Profile | null;
+}
+
+const MainDashboard = memo(({user, profile}: MainDashboardProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Get display name (from profile > user_metadata > email)
+  const displayName = profile?.username || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+
+  // Get avatar (from profile > user_metadata)
+ // const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
+ // const avatarFallback = displayName[0].toUpperCase();
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <div className="hidden lg:block">
-        <Sidebar isOpen={true} onClose={() => {}} />
+        <Sidebar 
+          isOpen={true} 
+          onClose={() => {}}
+          user={user}
+          profile={profile}/>
       </div>
       
       <div className="lg:hidden">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+          user={user}
+          profile={profile} />
       </div>
       
       <div className="flex-1 flex flex-col min-w-0">
-        <TopBar onMenuClick={() => setSidebarOpen(true)} />
+        <TopBar 
+          onMenuClick={() => setSidebarOpen(true)} 
+          user={user}/>
         
         <motion.main 
           className="flex-1 p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 lg:space-y-8 max-w-7xl mx-auto w-full"
@@ -633,7 +723,7 @@ const MainDashboard = memo(() => {
           animate="visible"
         >
           {/* Welcome Section */}
-          <WelcomeCard />
+          <WelcomeCard username={displayName} />
           
           {/* Quick Stats */}
           <QuickStatsGrid />
