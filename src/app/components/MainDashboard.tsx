@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, ReactNode } from 'react';
 import { 
   Home, 
   MessageCircle, 
@@ -12,20 +12,15 @@ import {
   ArrowRight,
   Sparkles,
   Star,
-  MapPin,
   Clock,
   Award,
   TrendingUp,
-  Heart,
-  Zap,
-  User,
   BookOpen,
   Camera,
   PlayCircle,
   ChevronRight,
   Menu,
-  X,
-  ChevronDown
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -53,7 +48,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
 };
@@ -70,7 +65,7 @@ const mobileMenuVariants = {
   closed: {
     x: "-100%",
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 40
     }
@@ -78,7 +73,7 @@ const mobileMenuVariants = {
   open: {
     x: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 40
     }
@@ -86,7 +81,19 @@ const mobileMenuVariants = {
 };
 
 // Mock data
-const upcomingSessions = [
+interface Session {
+  id: number;
+  title: string;
+  community: string;
+  time: string;
+  date: string;
+  participants: number;
+  maxParticipants: number;
+  type: string;
+  color: string;
+}
+
+const upcomingSessions: Session[] = [
   {
     id: 1,
     title: "Workshop Design UI/UX",
@@ -111,7 +118,16 @@ const upcomingSessions = [
   }
 ];
 
-const communitySpotlight = [
+interface CommunityMember {
+  id: number;
+  name: string;
+  role: string;
+  avatar: string;
+  status: string;
+  achievement: string;
+}
+
+const communitySpotlight: CommunityMember[] = [
   {
     id: 1,
     name: "Abigail Grand",
@@ -138,17 +154,38 @@ const communitySpotlight = [
   }
 ];
 
-const quickStats = [
+interface Stat {
+  label: string;
+  value: string;
+  gradient: string;
+  icon: ReactNode;
+}
+
+const quickStats: Stat[] = [
   { label: "Komunitas Joined", value: "12", gradient: "bg-gradient-turquoise", icon: <Users className="w-4 sm:w-5 h-4 sm:h-5" /> },
   { label: "Events Attended", value: "28", gradient: "bg-gradient-yellow", icon: <Calendar className="w-4 sm:w-5 h-4 sm:h-5" /> },
   { label: "Karma Points", value: "1,247", gradient: "bg-gradient-blue", icon: <Star className="w-4 sm:w-5 h-4 sm:h-5" /> }
 ];
 
+interface MenuItem {
+  id: string;
+  icon: React.ElementType;
+  label: string;
+  active?: boolean;
+  badge?: string;
+  new?: boolean;
+}
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 // Components
-const Sidebar = memo(({ isOpen, onClose }) => {
+const Sidebar = memo(({ isOpen, onClose }: SidebarProps) => {
   const [activeMenu, setActiveMenu] = useState('home');
   
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { id: 'home', icon: Home, label: 'Home', active: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', badge: '3' },
     { id: 'bookings', icon: Calendar, label: 'Bookings' },
@@ -235,7 +272,7 @@ const Sidebar = memo(({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <nav className="flex-1 p-3 xl:p-4">
-          {menuItems.map((item, index) => (
+          {menuItems.map((item) => (
             <motion.button
               key={item.id}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 mb-1 text-sm sm:text-base ${
@@ -275,7 +312,7 @@ const Sidebar = memo(({ isOpen, onClose }) => {
         >
           <div className="text-sm font-semibold text-foreground mb-2">Open to jobs</div>
           <div className="text-xs text-foreground-secondary mb-3">
-            Let hiring managers know you're available for roles.
+            Let hiring managers know you&apos;re available for roles.
           </div>
           <label className="flex items-center gap-2">
             <input type="checkbox" className="rounded" />
@@ -287,7 +324,11 @@ const Sidebar = memo(({ isOpen, onClose }) => {
   );
 });
 
-const TopBar = memo(({ onMenuClick }) => {
+interface TopBarProps {
+  onMenuClick: () => void;
+}
+
+const TopBar = memo(({ onMenuClick }: TopBarProps) => {
   const [showSearch, setShowSearch] = useState(false);
 
   return (
@@ -405,7 +446,7 @@ const WelcomeCard = memo(() => (
 
 const QuickStatsGrid = memo(() => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-    {quickStats.map((stat, index) => (
+    {quickStats.map((stat) => (
       <motion.div
         key={stat.label}
         className="bg-background border border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:shadow-soft transition-all duration-300"
@@ -551,7 +592,7 @@ const ActionCards = memo(() => {
       className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
       variants={containerVariants}
     >
-      {actions.map((action, index) => (
+      {actions.map((action) => (
         <motion.div
           key={action.title}
           className="bg-background border border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 cursor-pointer hover:shadow-soft transition-all duration-300"
@@ -611,6 +652,7 @@ const MainDashboard = memo(() => {
   );
 });
 
+// Assign display names for debugging
 Sidebar.displayName = 'Sidebar';
 TopBar.displayName = 'TopBar';
 WelcomeCard.displayName = 'WelcomeCard';

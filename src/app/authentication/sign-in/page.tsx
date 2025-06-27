@@ -2,91 +2,56 @@
 
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
 import { 
-  LogIn, 
-  KeyRound, 
-  AtSign, 
-  LoaderCircle, 
-  Eye, 
-  EyeOff,
   Shield,
   ArrowRight,
-  CheckCircle2,
-  XCircle,
-  User,
-  LucideIcon,
   Sparkles,
   Heart,
-  Zap
+  Zap,
+  Star,
+  Users,
+  CheckCircle,
+  MapPin,
+  Calendar
 } from "lucide-react";
-import { useState } from "react";
+import {  memo, useMemo } from "react";
 import { motion } from "framer-motion";
 
-// Interface untuk state form
-interface FormState {
-  type: "success" | "error" | "idle";
-  message: string;
+// Types
+interface FloatingIcon {
+  icon: React.ReactNode;
+  delay: number;
+  x: string;
+  y: string;
 }
 
-/**
- * Server Action untuk Sign In
- */
-async function signInAction(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const email = formData.get("email");
-  const password = formData.get("password");
-
-  console.log("Mencoba masuk dengan:", { email });
-
-  // Validasi sisi server
-  if (!email || !password) {
-    return { type: "error", message: "Email dan password wajib diisi." };
-  }
-
-  // Simulasi pengecekan kredensial
-  const validCredentials = [
-    { email: 'admin@example.com', password: 'password123' },
-    { email: 'user@example.com', password: 'mypassword' },
-  ];
-
-  const user = validCredentials.find(
-    cred => cred.email === email && cred.password === password
-  );
-
-  // Simulasi delay proses autentikasi
-  console.log("Memverifikasi kredensial...");
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  if (!user) {
-    return { 
-      type: "error", 
-      message: "Email atau password salah. Silakan coba lagi." 
-    };
-  }
-
-  // Di aplikasi nyata:
-  // 1. Verifikasi password dengan hash yang tersimpan
-  // 2. Buat session atau JWT token
-  // 3. Redirect ke dashboard
-
-  console.log("Login berhasil!");
-  return {
-    type: "success",
-    message: "Selamat datang! Anda berhasil masuk.",
-  };
+interface SocialProvider {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  gradientFrom: string;
+  gradientTo: string;
+  description: string;
+  isPopular?: boolean;
 }
 
-// Animation variants matching hero section
+// Static data moved outside component for performance
+const floatingIcons: FloatingIcon[] = [
+  { icon: <Sparkles className="w-6 h-6" />, delay: 0, x: "10%", y: "20%" },
+  { icon: <Users className="w-8 h-8" />, delay: 1, x: "80%", y: "30%" },
+  { icon: <Zap className="w-5 h-5" />, delay: 2, x: "15%", y: "70%" },
+  { icon: <Heart className="w-7 h-7" />, delay: 1.5, x: "85%", y: "75%" },
+  { icon: <MapPin className="w-6 h-6" />, delay: 0.5, x: "90%", y: "15%" },
+  { icon: <Calendar className="w-5 h-5" />, delay: 2.5, x: "5%", y: "45%" },
+];
+
+// Animation variants (matching hero section)
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
     },
   },
 };
@@ -147,492 +112,435 @@ const shimmerVariants = {
 };
 
 /**
- * Komponen Input dengan animasi dan styling modern yang selaras
+ * Social Icons Components
  */
-function ModernInput({ 
-  icon: Icon, 
-  label, 
-  type = "text", 
-  name, 
-  placeholder, 
-  required = false,
-  autoComplete,
-  showPasswordToggle = false 
-}: {
-  icon: LucideIcon;
-  label: string;
-  type?: string;
-  name: string;
-  placeholder: string;
-  required?: boolean;
-  autoComplete?: string;
-  showPasswordToggle?: boolean;
-}) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [hasValue, setHasValue] = useState(false);
+const GoogleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24">
+    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+);
 
-  const inputType = showPasswordToggle ? (showPassword ? "text" : "password") : type;
+const AppleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+  </svg>
+);
 
-  return (
-    <motion.div 
-      className="group"
-      variants={itemVariants}
-    >
-      <label className="block text-sm font-medium text-foreground-secondary mb-2 transition-colors">
-        {label}
-      </label>
-      <div className={`relative transition-all duration-300 ${isFocused ? 'transform scale-[1.02]' : ''}`}>
-        <motion.div
-          animate={isFocused ? { scale: 1.1, rotate: 360 } : { scale: 1, rotate: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Icon 
-            className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-              isFocused ? 'text-primary-500 scale-110' : 'text-brand-gray-400'
-            }`}
-            size={20} 
-          />
-        </motion.div>
-        <input
-          id={name}
-          name={name}
-          type={inputType}
-          required={required}
-          autoComplete={autoComplete}
-          placeholder={placeholder}
-          onFocus={() => setIsFocused(true)}
-          onBlur={(e) => {
-            setIsFocused(false);
-            setHasValue(e.target.value.length > 0);
-          }}
-          onChange={(e) => setHasValue(e.target.value.length > 0)}
-          className={`
-            block w-full rounded-2xl border-0 py-4 pl-11 pr-12
-            bg-background/80 backdrop-blur-sm
-            text-foreground
-            shadow-soft ring-1 ring-inset transition-all duration-300
-            placeholder:text-brand-gray-400 sm:text-sm sm:leading-6
-            ${isFocused 
-              ? 'ring-2 ring-primary-500 shadow-yellow' 
-              : 'ring-brand-gray-200 hover:ring-primary-300'
-            }
-            ${hasValue ? 'ring-secondary-300' : ''}
-          `}
-        />
-        {showPasswordToggle && (
-          <motion.button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-gray-400 hover:text-primary-500 transition-colors"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </motion.button>
-        )}
-      </div>
-    </motion.div>
-  );
-}
+const MicrosoftIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zM24 11.4H12.6V0H24v11.4z"/>
+  </svg>
+);
 
-/**
- * Komponen Tombol Submit dengan animasi yang selaras
- */
-function SubmitButton() {
-  const { pending } = useFormStatus();
+const GitHubIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+  </svg>
+);
 
-  return (
-    <motion.button
-      type="submit"
-      disabled={pending}
+const LinkedInIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const TwitterIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
+// Social providers data
+const socialProviders: SocialProvider[] = [
+  { 
+    name: "Google", 
+    icon: GoogleIcon, 
+    gradientFrom: "from-yellow-400", 
+    gradientTo: "to-orange-500", 
+    description: "Masuk dengan akun Google",
+    isPopular: true
+  },
+  { 
+    name: "Apple", 
+    icon: AppleIcon, 
+    gradientFrom: "from-gray-700", 
+    gradientTo: "to-black", 
+    description: "Masuk dengan Apple ID"
+  },
+  { 
+    name: "Microsoft", 
+    icon: MicrosoftIcon, 
+    gradientFrom: "from-blue-500", 
+    gradientTo: "to-blue-700", 
+    description: "Masuk dengan Microsoft"
+  },
+  { 
+    name: "GitHub", 
+    icon: GitHubIcon, 
+    gradientFrom: "from-gray-600", 
+    gradientTo: "to-gray-800", 
+    description: "Masuk dengan GitHub"
+  },
+  { 
+    name: "LinkedIn", 
+    icon: LinkedInIcon, 
+    gradientFrom: "from-blue-600", 
+    gradientTo: "to-blue-800", 
+    description: "Masuk dengan LinkedIn"
+  },
+  { 
+    name: "Twitter", 
+    icon: TwitterIcon, 
+    gradientFrom: "from-sky-400", 
+    gradientTo: "to-blue-500", 
+    description: "Masuk dengan Twitter/X"
+  }
+];
+
+// Memoized components
+const FloatingIcon = memo(({ item }: { item: FloatingIcon }) => (
+  <motion.div
+    className="absolute text-brand-gray-400 hover:text-primary-500 transition-colors duration-300"
+    style={{ 
+      left: item.x,
+      top: item.y,
+    }}
+    variants={floatingVariants}
+    animate="animate"
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    transition={{ delay: item.delay }}
+    whileHover={{ 
+      scale: 1.2,
+      transition: { duration: 0.2 }
+    }}
+  >
+    {item.icon}
+  </motion.div>
+));
+
+const SocialButton = memo(({ provider }: { provider: SocialProvider }) => (
+  <motion.div
+    className="relative group"
+    variants={itemVariants}
+    whileHover={{ scale: 1.05, y: -4 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    {/* Popular badge */}
+    {provider.isPopular && (
+      <motion.div
+        className="absolute -top-2 -right-2 z-10 bg-gradient-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg"
+        initial={{ scale: 0, rotate: -45 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: 0.8, type: "spring", bounce: 0.5 }}
+      >
+        <Star className="w-3 h-3 inline mr-1" />
+        Populer
+      </motion.div>
+    )}
+
+    <motion.button 
       className={`
-        w-full group relative overflow-hidden rounded-2xl px-8 py-4
-        bg-gradient-primary
-        text-white font-bold shadow-yellow hover:shadow-turquoise
-        transition-all duration-300 transform
-        ${pending 
-          ? 'scale-95 opacity-80 cursor-not-allowed' 
-          : 'hover:scale-105 active:scale-95'
-        }
-        disabled:from-brand-gray-400 disabled:via-brand-gray-500 disabled:to-brand-gray-400
+        relative w-full overflow-hidden
+        flex flex-col items-center justify-center gap-4 p-6 
+        rounded-2xl border backdrop-blur-sm
+        bg-background/80 hover:bg-background/90
+        border-primary-200 hover:border-primary-300
+        shadow-soft hover:shadow-yellow
+        transition-all duration-300
+        group
       `}
-      variants={itemVariants}
-      whileHover={{ scale: 1.05, y: -2 }}
-      whileTap={{ scale: 0.95 }}
-      aria-disabled={pending}
     >
-      {/* Animated Background */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-secondary"
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      />
-      
       {/* Shimmer Effect */}
       <motion.div 
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-200/30 to-transparent skew-x-12"
         variants={shimmerVariants}
         initial="initial"
         whileHover="animate"
       />
       
-      <div className="relative flex items-center justify-center gap-3">
-        {pending ? (
-          <>
-            <LoaderCircle className="animate-spin" size={22} />
-            <span>Memverifikasi...</span>
-          </>
-        ) : (
-          <>
-            <LogIn size={22} />
-            <span>Masuk</span>
-            <motion.div
-              animate={{ x: [0, 3, 0] }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                repeatDelay: 2
-              }}
-            >
-              <ArrowRight size={18} />
-            </motion.div>
-          </>
-        )}
+      <div className="relative z-10 flex flex-col items-center gap-3">
+        {/* Icon with gradient background */}
+        <motion.div
+          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${provider.gradientFrom} ${provider.gradientTo} flex items-center justify-center shadow-lg`}
+          whileHover={{ 
+            rotate: [0, -5, 5, 0],
+            scale: 1.1
+          }}
+          transition={{ duration: 0.4 }}
+        >
+          <provider.icon className="w-6 h-6 text-white" />
+        </motion.div>
+        
+        <div className="text-center">
+          <h3 className="text-lg font-bold text-foreground mb-1">
+            {provider.name}
+          </h3>
+          <p className="text-sm text-foreground-secondary">
+            {provider.description}
+          </p>
+        </div>
+        
+        {/* Enhanced arrow */}
+        <motion.div
+          className="flex items-center gap-2 text-primary-600 font-medium"
+          animate={{ x: [0, 3, 0] }}
+          transition={{ 
+            duration: 1.5, 
+            repeat: Infinity,
+            repeatDelay: 2
+          }}
+        >
+          <span className="text-sm">Masuk Sekarang</span>
+          <ArrowRight className="w-4 h-4" />
+        </motion.div>
       </div>
     </motion.button>
-  );
-}
+  </motion.div>
+));
 
-/**
- * Komponen Alert modern yang selaras
- */
-function ModernAlert({ type, message }: { type: "success" | "error"; message: string }) {
-  const isSuccess = type === "success";
-  
-  return (
-    <motion.div 
-      className={`
-        relative p-4 rounded-2xl backdrop-blur-sm border transition-all duration-500
-        ${isSuccess 
-          ? 'bg-secondary-50/80 border-secondary-200 text-secondary-700' 
-          : 'bg-red-50/80 border-red-200 text-red-700'
-        }
-      `}
-      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="flex items-start gap-3">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-        >
-          {isSuccess ? (
-            <CheckCircle2 className="text-secondary-600 flex-shrink-0 mt-0.5" size={20} />
-          ) : (
-            <XCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-          )}
-        </motion.div>
-        <p className="text-sm font-medium">{message}</p>
-      </div>
-    </motion.div>
+const LoginPage = memo(() => {
+  // Memoize expensive calculations
+  const memoizedFloatingIcons = useMemo(() => 
+    floatingIcons.map((item, idx) => (
+      <FloatingIcon key={idx} item={item} />
+    )), []
   );
-}
 
-/**
- * Demo credentials component
- */
-function DemoCredentials() {
-  const [isVisible, setIsVisible] = useState(false);
+  const memoizedSocialButtons = useMemo(() =>
+    socialProviders.map((provider) => (
+      <SocialButton key={provider.name} provider={provider} />
+    )), []
+  );
 
   return (
-    <motion.div 
-      className="mt-6"
-      variants={itemVariants}
-    >
-      <motion.button
-        type="button"
-        onClick={() => setIsVisible(!isVisible)}
-        className="text-sm text-primary-600 hover:text-primary-500 transition-colors underline font-medium"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        Lihat kredensial demo
-      </motion.button>
-      
-      {isVisible && (
-        <motion.div 
-          className="mt-3 p-4 bg-background/50 backdrop-blur-sm rounded-2xl border border-brand-gray-200 shadow-soft"
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <p className="text-sm font-medium text-foreground mb-2">Kredensial untuk testing:</p>
-          <div className="space-y-2 text-xs text-foreground-secondary">
-            <motion.div 
-              className="flex items-center gap-2"
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              <User size={14} />
-              <span>admin@example.com / password123</span>
-            </motion.div>
-            <motion.div 
-              className="flex items-center gap-2"
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <User size={14} />
-              <span>user@example.com / mypassword</span>
-            </motion.div>
-          </div>
-        </motion.div>
-      )}
-    </motion.div>
-  );
-}
-
-/**
- * Komponen Utama Halaman Sign In
- */
-export default function SignInPage() {
-  const initialState: FormState = { type: "idle", message: "" };
-  const [state, formAction] = useFormState(signInAction, initialState);
-
-  return (
-    <main className="min-h-screen bg-gradient-hero text-foreground p-4 flex items-center justify-center overflow-hidden">
-      {/* Animated Background Elements - matching hero section */}
+    <main className="relative min-h-screen flex items-center justify-center bg-gradient-hero text-foreground overflow-hidden p-4">
+      {/* Background Elements (matching hero section) */}
       <div className="absolute inset-0">
         {/* Gradient Orbs */}
         <motion.div 
           className="absolute top-0 left-0 w-96 h-96 bg-primary-300/20 rounded-full blur-3xl"
           variants={orbVariants}
           animate="animate"
-          style={{ willChange: "transform, opacity" }}
         />
         <motion.div 
           className="absolute bottom-0 right-0 w-80 h-80 bg-secondary-300/20 rounded-full blur-3xl"
           variants={orbVariants}
           animate="animate"
           transition={{ delay: 1 }}
-          style={{ willChange: "transform, opacity" }}
         />
         <motion.div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-accent-blue-300/20 rounded-full blur-3xl"
           variants={orbVariants}
           animate="animate"
           transition={{ delay: 2 }}
-          style={{ willChange: "transform, opacity" }}
         />
       </div>
 
       {/* Floating Icons */}
-      <motion.div
-        className="absolute top-20 left-10 text-brand-gray-400 hover:text-primary-500 transition-colors duration-300"
-        variants={floatingVariants}
-        animate="animate"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <Sparkles className="w-6 h-6" />
-      </motion.div>
-      
-      <motion.div
-        className="absolute top-32 right-16 text-brand-gray-400 hover:text-secondary-500 transition-colors duration-300"
-        variants={floatingVariants}
-        animate="animate"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-      >
-        <Heart className="w-7 h-7" />
-      </motion.div>
-
-      <motion.div
-        className="absolute bottom-24 left-20 text-brand-gray-400 hover:text-accent-blue-500 transition-colors duration-300"
-        variants={floatingVariants}
-        animate="animate"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-      >
-        <Zap className="w-5 h-5" />
-      </motion.div>
+      {memoizedFloatingIcons}
 
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(234,179,8,0.05),transparent_70%)]" />
 
       <motion.div 
-        className="w-full max-w-md space-y-8 relative z-10"
+        className="relative z-10 w-full max-w-6xl mx-auto space-y-12"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Header */}
         <motion.div 
-          className="text-center space-y-4"
+          className="text-center space-y-6"
           variants={itemVariants}
         >
+          {/* Badge */}
           <motion.div 
-            className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl shadow-yellow"
-            whileHover={{ scale: 1.1, rotate: 360 }}
-            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 bg-background/80 backdrop-blur-sm border border-primary-200 rounded-full px-4 py-2 shadow-soft"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
           >
-            <Shield className="text-white" size={28} />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              <Shield className="w-4 h-4 text-primary-500" />
+            </motion.div>
+            <span className="text-sm font-medium text-foreground-secondary">
+              Masuk ke Bangunkota
+            </span>
+            <motion.div 
+              className="w-2 h-2 bg-secondary-500 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            />
           </motion.div>
-          <div>
-            <motion.h1 
-              className="text-4xl font-black bg-gradient-primary bg-clip-text text-transparent"
+
+          {/* Main Heading */}
+          <motion.h1 
+            className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight"
+            variants={itemVariants}
+          >
+            <motion.span 
+              className="block relative inline-block"
               variants={itemVariants}
             >
-              Selamat Datang
-            </motion.h1>
-            <motion.p 
-              className="mt-3 text-foreground-secondary text-lg"
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                Selamat Datang
+              </span>
+            </motion.span>
+            <motion.span 
+              className="block text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mt-4"
               variants={itemVariants}
             >
-              Masuk ke akun Anda untuk melanjutkan
-            </motion.p>
-          </div>
-        </motion.div>
-
-        {/* Form Card */}
-        <motion.div 
-          className="relative"
-          variants={itemVariants}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 rounded-3xl blur-xl"></div>
-          <div className="relative bg-background/80 backdrop-blur-xl rounded-3xl p-8 shadow-soft border border-background/20">
-            <motion.form 
-              action={formAction} 
-              className="space-y-6"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              
-              <ModernInput
-                icon={AtSign}
-                label="Alamat Email"
-                type="email"
-                name="email"
-                placeholder="nama@example.com"
-                autoComplete="email"
-                required
-              />
-
-              <ModernInput
-                icon={KeyRound}
-                label="Password"
-                type="password"
-                name="password"
-                placeholder="Masukkan password Anda"
-                autoComplete="current-password"
-                showPasswordToggle
-                required
-              />
-
-              {/* Forgot password link */}
-              <motion.div 
-                className="flex items-center justify-between"
-                variants={itemVariants}
+              Kembali ke{" "}
+              <motion.span 
+                className="inline-block"
+                animate={{ 
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: 2,
+                  repeat: Infinity,
+                  repeatDelay: 3
+                }}
               >
-                <label className="flex items-center">
-                  <input 
-                    type="checkbox" 
-                    className="rounded border-brand-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="ml-2 text-sm text-foreground-secondary">Ingat saya</span>
-                </label>
-                <motion.a 
-                  href="/authentication/forgot-password" 
-                  className="text-sm text-primary-600 hover:text-primary-500 transition-colors hover:underline font-medium"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Lupa password?
-                </motion.a>
-              </motion.div>
-              
-              {/* Alert pesan */}
-              {state.message && (
-                <ModernAlert type={state.type as "success" | "error"} message={state.message} />
-              )}
-              
-              <SubmitButton />
-            </motion.form>
+                Komunitas! 🚀
+              </motion.span>
+            </motion.span>
+          </motion.h1>
 
-            {/* Demo credentials */}
-            <DemoCredentials />
-          </div>
+          {/* Subtitle */}
+          <motion.p 
+            className="text-lg md:text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed"
+            variants={itemVariants}
+          >
+            Pilih platform favorit Anda untuk{" "}
+            <span className="text-primary-600 font-semibold">masuk dengan cepat</span>{" "}
+            dan bergabung kembali dengan{" "}
+            <span className="text-secondary-600 font-semibold">komunitas aktif</span>{" "}
+            di Kota Bekasi.
+          </motion.p>
         </motion.div>
 
-        {/* Footer links */}
+        {/* Features Pills */}
         <motion.div 
-          className="text-center space-y-4"
+          className="flex flex-wrap justify-center gap-4"
+          variants={containerVariants}
+        >
+          {[
+            { icon: <CheckCircle className="w-4 h-4" />, text: "Keamanan Tingkat Enterprise", color: "border-secondary-200 bg-secondary-50 text-secondary-700" },
+            { icon: <Users className="w-4 h-4" />, text: "Terpercaya Ribuan Pengguna", color: "border-primary-200 bg-primary-50 text-primary-700" },
+            { icon: <Zap className="w-4 h-4" />, text: "Akses Instan Tanpa Password", color: "border-accent-orange-200 bg-accent-orange-50 text-accent-orange-700" }
+          ].map((feature, index) => (
+            <motion.div
+              key={feature.text}
+              className={`flex items-center gap-2 border backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 cursor-pointer ${feature.color}`}
+              variants={itemVariants}
+              whileHover={{ 
+                scale: 1.05, 
+                y: -4,
+                transition: { duration: 0.2 }
+              }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  ease: "linear",
+                  delay: index * 0.5 
+                }}
+              >
+                {feature.icon}
+              </motion.div>
+              {feature.text}
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Social Buttons Grid */}
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          variants={containerVariants}
+        >
+          {memoizedSocialButtons}
+        </motion.div>
+
+        {/* Footer */}
+        <motion.div 
+          className="text-center space-y-6"
           variants={itemVariants}
         >
-          <p className="text-foreground-secondary">
-            Belum punya akun?{' '}
-            <motion.a 
-              href="/authentication/sign-up" 
-              className="font-semibold text-primary-600 hover:text-primary-500 transition-colors hover:underline"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Daftar sekarang
-            </motion.a>
-          </p>
-          
-          {/* Divider */}
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-brand-gray-300 to-transparent"></div>
-            <span className="text-sm text-foreground-secondary">atau</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-brand-gray-300 to-transparent"></div>
+          <div className="flex items-center justify-center gap-6">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-brand-gray-300 to-transparent max-w-32"></div>
+            <div className="flex items-center gap-2 text-foreground-secondary">
+              <Shield className="w-4 h-4" />
+              <span className="text-sm font-medium">Aman & Terpercaya</span>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-brand-gray-300 to-transparent max-w-32"></div>
           </div>
-
-          {/* Social login buttons */}
-          <motion.div 
-            className="grid grid-cols-2 gap-3"
-            variants={containerVariants}
+          
+          <motion.p 
+            className="text-foreground-secondary text-sm max-w-md mx-auto"
+            variants={itemVariants}
           >
-            <motion.button 
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-brand-gray-200 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-300 group"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              <span className="text-sm font-medium text-foreground">Google</span>
-            </motion.button>
-            
-            <motion.button 
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-brand-gray-200 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-300 group"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              <span className="text-sm font-medium text-foreground">Facebook</span>
-            </motion.button>
-          </motion.div>
+            Dengan masuk, Anda menyetujui{" "}
+            <span className="text-primary-600 hover:text-primary-700 cursor-pointer underline font-medium">
+              Syarat & Ketentuan
+            </span>{" "}
+            dan{" "}
+            <span className="text-primary-600 hover:text-primary-700 cursor-pointer underline font-medium">
+              Kebijakan Privasi
+            </span>{" "}
+            kami.
+          </motion.p>
+
+          <div className="flex items-center justify-center gap-4 text-foreground-secondary text-xs">
+            <span>© 2025 Bangunkota</span>
+            <span>•</span>
+            <span>All rights reserved</span>
+          </div>
         </motion.div>
       </motion.div>
+
+      {/* Bottom Decorative Wave (matching hero section) */}
+      <div className="absolute bottom-0 left-0 w-full">
+        <motion.svg
+          viewBox="0 0 1200 120"
+          fill="none"
+          className="w-full h-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.8 }}
+        >
+          <motion.path
+            d="M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z"
+            fill="url(#themeGradient)"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, delay: 1.2 }}
+          />
+          <defs>
+            <linearGradient id="themeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(234,179,8,0.1)" />
+              <stop offset="50%" stopColor="rgba(20,184,166,0.15)" />
+              <stop offset="100%" stopColor="rgba(59,130,246,0.1)" />
+            </linearGradient>
+          </defs>
+        </motion.svg>
+      </div>
     </main>
   );
-}
+});
+
+FloatingIcon.displayName = 'FloatingIcon';
+SocialButton.displayName = 'SocialButton';
+LoginPage.displayName = 'LoginPage';
+
+export default LoginPage;
