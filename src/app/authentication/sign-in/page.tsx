@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import {  memo, useMemo } from "react";
 import { motion } from "framer-motion";
+import { logger } from '@/lib/logger'
 
 // Types
 interface FloatingIcon {
@@ -32,6 +33,11 @@ interface SocialProvider {
   gradientTo: string;
   description: string;
   isPopular?: boolean;
+}
+
+interface SocialButtonProps {
+  provider: SocialProvider,
+  onClick: () => void
 }
 
 // Static data moved outside component for performance
@@ -222,7 +228,7 @@ const FloatingIcon = memo(({ item }: { item: FloatingIcon }) => (
   </motion.div>
 ));
 
-const SocialButton = memo(({ provider }: { provider: SocialProvider }) => (
+const SocialButton = memo(({ provider, onClick }: SocialButtonProps ) => (
   <motion.div
     className="relative group"
     variants={itemVariants}
@@ -253,6 +259,7 @@ const SocialButton = memo(({ provider }: { provider: SocialProvider }) => (
         transition-all duration-300
         group
       `}
+      onClick={onClick}
     >
       {/* Shimmer Effect */}
       <motion.div 
@@ -303,6 +310,13 @@ const SocialButton = memo(({ provider }: { provider: SocialProvider }) => (
 ));
 
 const LoginPage = memo(() => {
+  
+  const handleProviderClick = (providerName: string) => {
+    logger.party(`Login with ${providerName}`)
+    
+    //if (providerName === "Google") signInWithGoogle()
+  }
+
   // Memoize expensive calculations
   const memoizedFloatingIcons = useMemo(() => 
     floatingIcons.map((item, idx) => (
@@ -312,9 +326,16 @@ const LoginPage = memo(() => {
 
   const memoizedSocialButtons = useMemo(() =>
     socialProviders.map((provider) => (
-      <SocialButton key={provider.name} provider={provider} />
+      <SocialButton 
+        key={provider.name} 
+        provider={provider}
+        onClick={
+          () => handleProviderClick(provider.name)
+        }/>
     )), []
   );
+  
+  
 
   return (
     <main className="relative min-h-screen flex items-center justify-center bg-gradient-hero text-foreground overflow-hidden p-4">
