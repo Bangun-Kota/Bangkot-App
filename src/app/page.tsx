@@ -1,8 +1,8 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 //import LogoutButton from '@/components/Auth/LogoutButton';
-import LandingPage from '@/components/LandingPage';
-import MainDashboard from '@/components/MainDashboard';
+import LandingPage from '@/app/components/LandingPage';
+import MainDashboard from '@/app/components/MainDashboard';
 
 
 // app/page.js

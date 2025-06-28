@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import {  memo, useMemo } from "react";
 import { motion } from "framer-motion";
-import { logger } from '@/lib/logger'
+import { logger } from '@/app/lib/logger'
 //import { supabase } from '@/lib/supabase/client';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
