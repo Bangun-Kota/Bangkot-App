@@ -14,8 +14,7 @@ import MediaSection from '@/app/sections/MediaSection'
 import PartnershipSection from '@/app/sections/PartnershipSection'
 import CTASection from '@/app/sections/CTASection'
 import ContactSection from '@/app/sections/ContactSection'
-import Header from '@/app/components/Header'
-import Footer from '@/app/components/Footer'
+import { Header, Footer } from '@/components/organisms'
 
 export default function LandingPage() {
   return (
