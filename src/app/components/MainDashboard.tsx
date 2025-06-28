@@ -3,11 +3,11 @@
 import React, { useState, memo, ReactNode } from 'react';
 import { 
   Home, 
-  MessageCircle, 
+  //MessageCircle, 
   Calendar, 
-  Trophy, 
+//  Trophy, 
   Users, 
-  Settings,
+ // Settings,
   Search,
   Bell,
   Plus,
@@ -17,7 +17,7 @@ import {
   Clock,
   Award,
   TrendingUp,
-  BookOpen,
+ // BookOpen,
   Camera,
   PlayCircle,
   ChevronRight,
@@ -200,12 +200,12 @@ const Sidebar = memo(({ isOpen, onClose, user, profile }: SidebarProps) => {
   
   const menuItems: MenuItem[] = [
     { id: 'home', icon: Home, label: 'Home', active: true },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: '3' },
+    /*{ id: 'messages', icon: MessageCircle, label: 'Messages', badge: '3' },
     { id: 'bookings', icon: Calendar, label: 'Bookings' },
     { id: 'achievements', icon: Trophy, label: 'Achievements', new: true },
     { id: 'connections', icon: Users, label: 'Connections' },
     { id: 'sessions', icon: BookOpen, label: 'Group Sessions' },
-    { id: 'more', icon: Settings, label: 'More' }
+    { id: 'more', icon: Settings, label: 'More' }*/
   ];
 
   return (
@@ -373,10 +373,17 @@ const Sidebar = memo(({ isOpen, onClose, user, profile }: SidebarProps) => {
 interface TopBarProps {
   onMenuClick: () => void;
   user: User;
+  profile?: Profile | null;
 }
 
-const TopBar = memo(({ onMenuClick, user }: TopBarProps) => {
+const TopBar = memo(({ onMenuClick, user, profile }: TopBarProps) => {
   const [showSearch, setShowSearch] = useState(false);
+  // Dapatkan display name dan avatar URL
+  const displayName = profile?.username || 
+                     user.user_metadata?.full_name || 
+                     user.email?.split('@')[0] || 
+                     'User';
+  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
   const avatarFallback = user.email?.[0].toUpperCase() || 'U';
 
   return (
@@ -432,9 +439,17 @@ const TopBar = memo(({ onMenuClick, user }: TopBarProps) => {
         </motion.button>
         
         {/* Profile */}
-        <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-turquoise rounded-full flex items-center justify-center text-white font-bold text-sm">
-          {avatarFallback}
-        </div>
+          {avatarUrl ? (
+            <img 
+              src={avatarUrl} 
+              alt={displayName}
+              className="w-8 sm:w-10 h-8 sm:h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-turquoise rounded-full flex items-center justify-center text-white font-bold text-sm">
+              {avatarFallback}
+            </div>
+          )}
       </div>
 
       {/* Mobile Search Dropdown */}
@@ -714,7 +729,8 @@ const MainDashboard = memo(({user, profile}: MainDashboardProps) => {
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar 
           onMenuClick={() => setSidebarOpen(true)} 
-          user={user}/>
+          user={user}
+          profile={profile}/>
         
         <motion.main 
           className="flex-1 p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 lg:space-y-8 max-w-7xl mx-auto w-full"
@@ -726,16 +742,19 @@ const MainDashboard = memo(({user, profile}: MainDashboardProps) => {
           <WelcomeCard username={displayName} />
           
           {/* Quick Stats */}
-          <QuickStatsGrid />
+          {/*<QuickStatsGrid />*/}
           
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             <UpcomingSessionsCard />
             <CommunitySpotlightCard />
           </div>
           
+          
+          
           {/* Additional Actions */}
-          <ActionCards />
+          {/*<ActionCards />*/}
         </motion.main>
       </div>
     </div>
